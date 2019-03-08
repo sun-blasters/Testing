@@ -1,18 +1,10 @@
-#!/bin/bash
-#
+#!/usr/bin/env bash
 
-REGEX="\[Reviewer\-[A-Za-z]*\]"
+# regex to validate in commit msg
+commit_regex='[Reviewer-[A-Za-z]+]'
+error_msg="Aborting commit. Your commit message should have Reviewer Name . Format is [Reviewer-Name]"
 
-ERROR_MSG="[POLICY] The commit doesn't reference a Reviewer Name format is [Reviewer-name]"
-
-while read OLDREV NEWREV REFNAME ; do
-  for COMMIT in `git rev-list $OLDREV..$NEWREV`;
-  do
-    MESSAGE=`git cat-file commit $COMMIT | sed '1,/^$/d'`
-    if ! echo $MESSAGE | grep -iqE "$REGEX"; then
-      echo "$ERROR_MSG: $MESSAGE" >&2
-      exit 1
-    fi
-  done
-done
-exit 0
+if ! grep -iqE "$commit_regex" "$1"; then
+    echo "$error_msg" >&2
+    exit 1
+fi
